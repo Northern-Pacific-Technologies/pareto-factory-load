@@ -1,7 +1,7 @@
-tenant,schema,project,project_component,source_directory,sub_package_directory
-// java,,,,,
-system,pareto,pareto-loader,java_api_model,/Users/scott/norpac/pareto-factory/pareto-factory-load,/src/main/java/com/norpactech/pf
-system,pareto,pareto-loader,java_api_delete_request,/Users/scott/norpac/pareto-factory/pareto-factory-load,/src/main/java/com/norpactech/pf
-system,pareto,pareto-loader,java_api_post_request,/Users/scott/norpac/pareto-factory/pareto-factory-load,/src/main/java/com/norpactech/pf
-system,pareto,pareto-loader,java_api_put_request,/Users/scott/norpac/pareto-factory/pareto-factory-load,/src/main/java/com/norpactech/pf
-system,pareto,pareto-loader,java_native_repository,/Users/scott/norpac/pareto-factory/pareto-factory-load,/src/main/java/com/norpactech/pf
+tenant,schema,project,project_component,sub_package_directory
+// java,,,,
+system,pareto,pareto-loader,java_api_model,/src/main/java/com/norpactech/pf
+system,pareto,pareto-loader,java_api_delete_request,/src/main/java/com/norpactech/pf
+system,pareto,pareto-loader,java_api_post_request,/src/main/java/com/norpactech/pf
+system,pareto,pareto-loader,java_api_put_request,/src/main/java/com/norpactech/pf
+system,pareto,pareto-loader,java_native_repository,/src/main/java/com/norpactech/pf
