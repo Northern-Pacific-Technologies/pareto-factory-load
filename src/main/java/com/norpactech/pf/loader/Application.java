@@ -31,19 +31,19 @@ public class Application {
     String filePath   = System.getenv("IMPORT_FILE_PATH");
     
     logger.info("Beginning Pareto Loader");
-
+    
     if (StringUtils.isEmpty(username)) {
-      logger.error("Null or empty username. Set environment variable: PARETO_BUILD_USERNAME. Terminating...");
+      logger.error("Null or empty username. Set environment variable: PARETO_USERNAME. Terminating...");
       System.exit(1);
     }
     
     if (StringUtils.isEmpty(password)) {
-      logger.error("Null or empty password. Set environment variable: PARETO_BUILD_PASSWORD. Terminating...");
+      logger.error("Null or empty password. Set environment variable: PARETO_PASSWORD. Terminating...");
       System.exit(1);
     }
     
     if (StringUtils.isEmpty(factoryURL)) {
-      logger.error("Null or empty Pareto Factory URL. Set environment variable: PARETO_BUILD_FACTORY_URL. Terminating...");
+      logger.error("Null or empty Pareto Factory URL. Set environment variable: PARETO_FACTORY_URL. Terminating...");
       System.exit(1);
     }
 
