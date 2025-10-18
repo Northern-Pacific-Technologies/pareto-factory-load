@@ -35,6 +35,7 @@ public class ConfiguredAPI {
     logger.info("API Version: {}", thatApiVersion);
     logger.info("Username: {}", username);
     logger.info("Password: {}", "*".repeat(password.length()));
+    logger.info("Tenant UUID: {}", Globals.getIdTenant().toString());
     
     if (thatHost != null) {
       host = thatHost;
