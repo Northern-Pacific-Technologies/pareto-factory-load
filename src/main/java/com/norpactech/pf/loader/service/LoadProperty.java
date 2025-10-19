@@ -10,6 +10,7 @@ import com.norpactech.pf.loader.dto.PropertyPostApiRequest;
 import com.norpactech.pf.loader.dto.PropertyPutApiRequest;
 import com.norpactech.pf.loader.dto.UserDeleteApiRequest;
 import com.norpactech.pf.loader.model.GenericPropertyType;
+import com.norpactech.pf.loader.model.Validation;
 import com.norpactech.pf.utils.ApiResponse;
 import com.norpactech.pf.utils.Constant;
 import com.norpactech.pf.utils.TextUtils;
@@ -45,8 +46,8 @@ public class LoadProperty extends BaseLoader {
         var name = TextUtils.toString(csvRecord.get("name"));
         var description = TextUtils.toString(csvRecord.get("description"));
         // TODO: implement references and cardinality
-        var references = TextUtils.toString(csvRecord.get("references"));
-        var cardinality = TextUtils.toString(csvRecord.get("cardinality"));
+        // var references = TextUtils.toString(csvRecord.get("references"));
+        // var cardinality = TextUtils.toString(csvRecord.get("cardinality"));
         Boolean isUpdatable = true;
         if (StringUtils.isNotEmpty(csvRecord.get("is_updatable"))) {
           isUpdatable = TextUtils.toBoolean(csvRecord.get("is_updatable"));
@@ -56,7 +57,7 @@ public class LoadProperty extends BaseLoader {
           fkViewable = TextUtils.toBoolean(csvRecord.get("fk_viewable"));
         }
         // TODO: implement hasReferentialAction
-        var hasReferentialAction = TextUtils.toBoolean(csvRecord.get("has_referential_action"));
+        // var hasReferentialAction = TextUtils.toBoolean(csvRecord.get("has_referential_action"));
         var length = TextUtils.toInteger(csvRecord.get("length"));
         var scale = TextUtils.toInteger(csvRecord.get("scale"));
         var isNullable = TextUtils.toBoolean(csvRecord.get("is_nullable"));
@@ -80,7 +81,10 @@ public class LoadProperty extends BaseLoader {
           logger.error("Data Object {} not found. Ignoring Property {}.", dataObjectName, name);
           continue;
         }
-        var validation = validationRepository.findOne(tenant.getId(), validationName);
+        Validation validation = null;
+        if (StringUtils.isNotEmpty(validationName)) {
+          validationRepository.findOne(tenant.getId(), validationName);
+        }
         
         // The generic data type is either in the property or property type (domain)
         UUID idGenericDataType = null;
@@ -96,7 +100,7 @@ public class LoadProperty extends BaseLoader {
         else {
           idGenericDataType = genericDataType.getId();
         }
-        
+
         var property = propertyRepository.findOne(dataObject.getId(), name);
         ApiResponse response = null; 
         
@@ -117,13 +121,12 @@ public class LoadProperty extends BaseLoader {
             request.setScale(scale);
             request.setIsNullable(isNullable);
             request.setDefaultValue(defaultValue);
-            
             request.setCreatedBy(Constant.THIS_PROCESS_CREATED);
-            
             response = propertyRepository.save(request);                    
           }
           else {
             var request = new PropertyPutApiRequest();
+            request.setId(property.getId());
             request.setIdGenericDataType(idGenericDataType);
             request.setIdGenericPropertyType(genericPropertyType != null ? genericPropertyType.getId() : null);
             request.setIdValidation(validation != null ? validation.getId() : null);
@@ -164,7 +167,7 @@ public class LoadProperty extends BaseLoader {
       }
     }
     catch (Exception e) {
-      logger.error("Error Loading Generic Data Type {}", e.getMessage());
+      logger.error("Error Loading Property {}", e.getMessage());
       throw e;
     }
     finally {

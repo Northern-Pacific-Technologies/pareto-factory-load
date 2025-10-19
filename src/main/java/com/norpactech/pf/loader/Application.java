@@ -30,6 +30,8 @@ public class Application {
     String tenantUUID = System.getenv("PARETO_TENANT_UUID");
     String filePath   = System.getenv("IMPORT_FILE_PATH");
     
+    System.setProperty("java.util.logging.SimpleFormatter.format", "%1$tc %3$s %4$s: %5$s%6$s%n");
+
     logger.info("Beginning Pareto Loader");
     
     if (StringUtils.isEmpty(username)) {

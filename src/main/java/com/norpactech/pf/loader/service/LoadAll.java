@@ -24,7 +24,6 @@ public class LoadAll {
     new LoadProject(filePath, "Project.csv").load();
     new LoadProjectComponent(filePath, "ProjectComponent.csv").load();
     new LoadProjectComponentProperty(filePath, "ProjectComponentProperty.csv").load();
-    // Post Import
     new LoadProperty(filePath, "Property.csv").load();
     
     logger.info("Completed Load All");

@@ -17,7 +17,7 @@ import com.norpactech.pf.loader.repository.ContextRepository;
 import com.norpactech.pf.loader.repository.DataObjectRepository;
 import com.norpactech.pf.loader.repository.GenericDataTypeAttributeRepository;
 import com.norpactech.pf.loader.repository.GenericDataTypeRepository;
-import com.norpactech.pf.loader.repository.GenericPropertyTypeRepository;
+import com.norpactech.pf.loader.repository.GenericPropertyTypeRepositoryEx;
 import com.norpactech.pf.loader.repository.PluginRepository;
 import com.norpactech.pf.loader.repository.ProjectComponentPropertyRepository;
 import com.norpactech.pf.loader.repository.ProjectComponentRepository;
@@ -40,7 +40,7 @@ public abstract class BaseLoader {
   protected static final ContextPropertyTypeRepository contextPropertyTypeRepository = new ContextPropertyTypeRepository();
   protected static final GenericDataTypeAttributeRepository genericDataTypeAttributeRepository = new GenericDataTypeAttributeRepository();
   protected static final GenericDataTypeRepository genericDataTypeRepository = new GenericDataTypeRepository();
-  protected static final GenericPropertyTypeRepository genericPropertyTypeRepository = new GenericPropertyTypeRepository();
+  protected static final GenericPropertyTypeRepositoryEx genericPropertyTypeRepository = new GenericPropertyTypeRepositoryEx();
   protected static final PluginRepository pluginRepository = new PluginRepository();
   protected static final ProjectComponentPropertyRepository projectComponentPropertyRepository = new ProjectComponentPropertyRepository();
   protected static final ProjectComponentRepository projectComponentRepository = new ProjectComponentRepository();
