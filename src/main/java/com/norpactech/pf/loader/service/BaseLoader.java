@@ -14,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.norpactech.pf.loader.repository.ContextDataTypeRepository;
 import com.norpactech.pf.loader.repository.ContextPropertyTypeRepository;
 import com.norpactech.pf.loader.repository.ContextRepository;
+import com.norpactech.pf.loader.repository.DataObjectRepository;
 import com.norpactech.pf.loader.repository.GenericDataTypeAttributeRepository;
 import com.norpactech.pf.loader.repository.GenericDataTypeRepository;
 import com.norpactech.pf.loader.repository.GenericPropertyTypeRepository;
@@ -21,6 +22,7 @@ import com.norpactech.pf.loader.repository.PluginRepository;
 import com.norpactech.pf.loader.repository.ProjectComponentPropertyRepository;
 import com.norpactech.pf.loader.repository.ProjectComponentRepository;
 import com.norpactech.pf.loader.repository.ProjectRepository;
+import com.norpactech.pf.loader.repository.PropertyRepository;
 import com.norpactech.pf.loader.repository.RefTableTypeRepository;
 import com.norpactech.pf.loader.repository.RefTablesRepository;
 import com.norpactech.pf.loader.repository.SchemaRepository;
@@ -50,6 +52,8 @@ public abstract class BaseLoader {
   protected static final TenantUserRepository tenantUserRepository = new TenantUserRepository();
   protected static final UserRepository userRepository = new UserRepository();
   protected static final ValidationRepository validationRepository = new ValidationRepository();
+  protected static final DataObjectRepository dataObjectRepository = new DataObjectRepository();
+  protected static final PropertyRepository propertyRepository = new PropertyRepository();
 
   private String filePath;
   private String fileName;
