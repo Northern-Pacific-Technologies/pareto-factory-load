@@ -1,4 +1,4 @@
-package com.norpactech.pf.loader.repository;
+package com.norpactech.pf.loader.repository.ex;
 /**
  * © 2025 Northern Pacific Technologies, LLC. All Rights Reserved. 
  *  
@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import com.norpactech.pf.loader.model.GenericPropertyType;
+import com.norpactech.pf.loader.repository.GenericPropertyTypeRepository;
 
 public class GenericPropertyTypeRepositoryEx extends GenericPropertyTypeRepository {
 

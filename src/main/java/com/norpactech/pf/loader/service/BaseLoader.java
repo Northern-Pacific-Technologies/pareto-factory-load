@@ -17,7 +17,6 @@ import com.norpactech.pf.loader.repository.ContextRepository;
 import com.norpactech.pf.loader.repository.DataObjectRepository;
 import com.norpactech.pf.loader.repository.GenericDataTypeAttributeRepository;
 import com.norpactech.pf.loader.repository.GenericDataTypeRepository;
-import com.norpactech.pf.loader.repository.GenericPropertyTypeRepositoryEx;
 import com.norpactech.pf.loader.repository.PluginRepository;
 import com.norpactech.pf.loader.repository.ProjectComponentPropertyRepository;
 import com.norpactech.pf.loader.repository.ProjectComponentRepository;
@@ -30,6 +29,7 @@ import com.norpactech.pf.loader.repository.TenantRepository;
 import com.norpactech.pf.loader.repository.TenantUserRepository;
 import com.norpactech.pf.loader.repository.UserRepository;
 import com.norpactech.pf.loader.repository.ValidationRepository;
+import com.norpactech.pf.loader.repository.ex.GenericPropertyTypeRepositoryEx;
 
 public abstract class BaseLoader {
 
