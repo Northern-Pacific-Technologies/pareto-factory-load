@@ -6,14 +6,14 @@ import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.norpactech.nc.api.utils.ApiResponse;
+import com.norpactech.nc.utils.TextUtils;
 import com.norpactech.pf.loader.dto.TenantUserPostApiRequest;
 import com.norpactech.pf.loader.dto.UserDeleteApiRequest;
 import com.norpactech.pf.loader.dto.UserPostApiRequest;
 import com.norpactech.pf.loader.dto.UserPutApiRequest;
 import com.norpactech.pf.loader.model.TenantUser;
-import com.norpactech.pf.utils.ApiResponse;
 import com.norpactech.pf.utils.Constant;
-import com.norpactech.pf.utils.TextUtils;
 
 public class LoadUser extends BaseLoader {
 
@@ -23,12 +23,10 @@ public class LoadUser extends BaseLoader {
     super(filePath, fileName);
   }
   
-  @SuppressWarnings("resource")
   public void load() throws Exception {
     
     if (!isFileAvailable()) return;
 
-    logger.info("Beginning User Load from: " + getFullPath());
     int persisted = 0;
     int deleted = 0;
     int errors = 0;
@@ -63,6 +61,7 @@ public class LoadUser extends BaseLoader {
           if (user == null) {
             var request = new UserPostApiRequest();
             request.setEmail(email);
+            request.setOauthIdUser("");
             request.setLastName(lastName);
             request.setFirstName(firstName);
             request.setPhone(phone);
@@ -79,6 +78,7 @@ public class LoadUser extends BaseLoader {
             var request = new UserPutApiRequest();
             request.setId(user.getId());
             request.setEmail(email);
+            request.setOauthIdUser("");
             request.setLastName(lastName);
             request.setFirstName(firstName);
             request.setPhone(phone);
@@ -87,6 +87,7 @@ public class LoadUser extends BaseLoader {
             request.setCity(city);
             request.setState(state);
             request.setZipCode(zipCode);
+            request.setTermsAccepted(termsAccepted);
             request.setUpdatedAt(user.getUpdatedAt());
             request.setUpdatedBy(Constant.THIS_PROCESS_UPDATED);
             response = userRepository.save(request);                 

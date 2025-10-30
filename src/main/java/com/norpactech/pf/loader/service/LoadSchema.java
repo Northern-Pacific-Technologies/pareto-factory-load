@@ -3,12 +3,12 @@ import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.norpactech.nc.api.utils.ApiResponse;
+import com.norpactech.nc.utils.TextUtils;
 import com.norpactech.pf.loader.dto.SchemaDeleteApiRequest;
 import com.norpactech.pf.loader.dto.SchemaPostApiRequest;
 import com.norpactech.pf.loader.dto.SchemaPutApiRequest;
-import com.norpactech.pf.utils.ApiResponse;
 import com.norpactech.pf.utils.Constant;
-import com.norpactech.pf.utils.TextUtils;
 
 public class LoadSchema extends BaseLoader {
 
@@ -22,7 +22,6 @@ public class LoadSchema extends BaseLoader {
     
     if (!isFileAvailable()) return;
 
-    logger.info("Beginning Schema Load from: " + getFullPath());
     int persisted = 0;
     int deleted = 0;
     int errors = 0;

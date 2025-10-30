@@ -3,12 +3,12 @@ import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.norpactech.nc.api.utils.ApiResponse;
+import com.norpactech.nc.utils.TextUtils;
 import com.norpactech.pf.loader.dto.RefTablesDeleteApiRequest;
 import com.norpactech.pf.loader.dto.RefTablesPostApiRequest;
 import com.norpactech.pf.loader.dto.RefTablesPutApiRequest;
-import com.norpactech.pf.utils.ApiResponse;
 import com.norpactech.pf.utils.Constant;
-import com.norpactech.pf.utils.TextUtils;
 
 public class LoadRefTables extends BaseLoader {
 
@@ -22,7 +22,6 @@ public class LoadRefTables extends BaseLoader {
     
     if (!isFileAvailable()) return;
 
-    logger.info("Beginning Reference Tables Load from: " + getFullPath());
     int persisted = 0;
     int deleted = 0;
     int errors = 0;

@@ -3,12 +3,14 @@ import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.norpactech.nc.api.utils.ApiResponse;
+import com.norpactech.nc.utils.TextUtils;
 import com.norpactech.pf.loader.dto.ContextPropertyTypePostApiRequest;
 import com.norpactech.pf.loader.dto.ContextPropertyTypePutApiRequest;
 import com.norpactech.pf.loader.dto.UserDeleteApiRequest;
-import com.norpactech.pf.utils.ApiResponse;
 import com.norpactech.pf.utils.Constant;
-import com.norpactech.pf.utils.TextUtils;
+
+import software.amazon.awssdk.utils.StringUtils;
 
 public class LoadContextPropertyType extends BaseLoader {
 
@@ -83,7 +85,7 @@ public class LoadContextPropertyType extends BaseLoader {
             request.setIdGenericPropertyType(genericPropertyType.getId());
             request.setLength(length);            
             request.setScale(scale);            
-            request.setIsNullable(isNullable);            
+            request.setIsNullable(isNullable == null ? true : false);            
             request.setDefaultValue(defaultValue); 
             request.setCreatedBy(Constant.THIS_PROCESS_CREATED);
             response = contextPropertyTypeRepository.save(request);                    
@@ -94,7 +96,7 @@ public class LoadContextPropertyType extends BaseLoader {
             request.setIdGenericPropertyType(genericPropertyType.getId());
             request.setLength(length);            
             request.setScale(scale);            
-            request.setIsNullable(isNullable);            
+            request.setIsNullable(isNullable == null ? true : false);            
             request.setDefaultValue(defaultValue); 
             request.setUpdatedAt(contextPropertyType.getUpdatedAt());
             request.setUpdatedBy(Constant.THIS_PROCESS_UPDATED);

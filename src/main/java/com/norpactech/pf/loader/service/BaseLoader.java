@@ -30,6 +30,7 @@ import com.norpactech.pf.loader.repository.TenantUserRepository;
 import com.norpactech.pf.loader.repository.UserRepository;
 import com.norpactech.pf.loader.repository.ValidationRepository;
 import com.norpactech.pf.loader.repository.ex.GenericPropertyTypeRepositoryEx;
+import com.norpactech.pf.loader.repository.ex.TenantRepositoryEx;
 
 public abstract class BaseLoader {
 
@@ -49,6 +50,7 @@ public abstract class BaseLoader {
   protected static final RefTableTypeRepository refTableTypeRepository = new RefTableTypeRepository();
   protected static final SchemaRepository schemaRepository = new SchemaRepository();
   protected static final TenantRepository tenantRepository = new TenantRepository();
+  protected static final TenantRepositoryEx tenantRepositoryEx = new TenantRepositoryEx();
   protected static final TenantUserRepository tenantUserRepository = new TenantUserRepository();
   protected static final UserRepository userRepository = new UserRepository();
   protected static final ValidationRepository validationRepository = new ValidationRepository();

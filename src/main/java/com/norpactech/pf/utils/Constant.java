@@ -1,9 +1,5 @@
 package com.norpactech.pf.utils;
-/**
- * © 2025 Northern Pacific Technologies, LLC. All Rights Reserved. 
- *  
- * For license details, see the LICENSE file in this project root.
- */
+
 import java.time.format.DateTimeFormatter;
 
 public class Constant {
@@ -12,7 +8,7 @@ public class Constant {
   public static final String THIS_PROCESS_CREATED = "pareto-loader-created";
   public static final String THIS_PROCESS_UPDATED = "pareto-loader-updated";
   public static final String THIS_PROCESS_DELETED = "pareto-loader-deleted";
-    
+
   public static final String CARDINALITY_TABLE_TYPE = "cardinality";
   public static final String CARDINALITY_STRENGTH_TABLE_TYPE = "cardinality_strength";
   
@@ -41,4 +37,5 @@ public class Constant {
   public static final String SORT_DIRECTION = "sortDirection";
   
   public static final DateTimeFormatter TIMESTAMP_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"); 
+  
 }

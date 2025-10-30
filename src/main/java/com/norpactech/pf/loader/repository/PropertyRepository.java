@@ -5,15 +5,16 @@ package com.norpactech.pf.loader.repository;
  * For license details, see the LICENSE file in this project root.
  */
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.List;
 import java.util.UUID;
-
+import com.norpactech.nc.repository.ParetoNativeRepository;
+import com.norpactech.nc.api.utils.ApiResponse;
 import com.norpactech.pf.loader.dto.PropertyDeleteApiRequest;
-import com.norpactech.pf.loader.dto.PropertyPostApiRequest;
 import com.norpactech.pf.loader.dto.PropertyPutApiRequest;
+import com.norpactech.pf.loader.dto.PropertyPostApiRequest;
+
 import com.norpactech.pf.loader.model.Property;
-import com.norpactech.pf.utils.ApiResponse;
 
 public class PropertyRepository extends ParetoNativeRepository<Property> {
   
@@ -28,8 +29,8 @@ public class PropertyRepository extends ParetoNativeRepository<Property> {
     return super.findOne(Property.class, new HashMap<>(Map.of("id", id)));
   }
 
-  public Property findOne(UUID idDataObject, String name) throws Exception {
-    return super.findOne(Property.class, new HashMap<>(Map.of("idDataObject", idDataObject, "name", name)));
+  public Property findOne(UUID idTenant, UUID idDataObject, String name) throws Exception {
+    return super.findOne(Property.class, new HashMap<>(Map.of("idTenant", idTenant, "idDataObject", idDataObject, "name", name)));
   }
   
   public List<Property> find(Map<String, Object> params) throws Exception {

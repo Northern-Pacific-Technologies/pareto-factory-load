@@ -3,15 +3,15 @@ import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.norpactech.nc.api.utils.ApiResponse;
+import com.norpactech.nc.utils.TextUtils;
 import com.norpactech.pf.loader.dto.UserDeleteApiRequest;
 import com.norpactech.pf.loader.dto.ValidationPostApiRequest;
 import com.norpactech.pf.loader.dto.ValidationPutApiRequest;
 import com.norpactech.pf.loader.enums.EnumRefTableType;
 import com.norpactech.pf.loader.model.RefTableType;
 import com.norpactech.pf.loader.model.RefTables;
-import com.norpactech.pf.utils.ApiResponse;
 import com.norpactech.pf.utils.Constant;
-import com.norpactech.pf.utils.TextUtils;
 
 public class LoadValidation extends BaseLoader {
 

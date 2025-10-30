@@ -6,14 +6,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.norpactech.nc.api.utils.ApiResponse;
+import com.norpactech.nc.utils.TextUtils;
 import com.norpactech.pf.loader.dto.PropertyPostApiRequest;
 import com.norpactech.pf.loader.dto.PropertyPutApiRequest;
 import com.norpactech.pf.loader.dto.UserDeleteApiRequest;
 import com.norpactech.pf.loader.model.GenericPropertyType;
 import com.norpactech.pf.loader.model.Validation;
-import com.norpactech.pf.utils.ApiResponse;
 import com.norpactech.pf.utils.Constant;
-import com.norpactech.pf.utils.TextUtils;
 
 public class LoadProperty extends BaseLoader {
 
@@ -101,7 +101,7 @@ public class LoadProperty extends BaseLoader {
           idGenericDataType = genericDataType.getId();
         }
 
-        var property = propertyRepository.findOne(dataObject.getId(), name);
+        var property = propertyRepository.findOne(tenant.getId(), dataObject.getId(), name);
         ApiResponse response = null; 
         
         if (action.startsWith("p")) {
@@ -119,7 +119,7 @@ public class LoadProperty extends BaseLoader {
             request.setFkViewable(fkViewable);
             request.setLength(length);
             request.setScale(scale);
-            request.setIsNullable(isNullable);
+            request.setIsNullable(isNullable == null ? true : false);            
             request.setDefaultValue(defaultValue);
             request.setCreatedBy(Constant.THIS_PROCESS_CREATED);
             response = propertyRepository.save(request);                    
@@ -137,7 +137,7 @@ public class LoadProperty extends BaseLoader {
             request.setFkViewable(fkViewable);
             request.setLength(length);
             request.setScale(scale);
-            request.setIsNullable(isNullable);
+            request.setIsNullable(isNullable == null ? true : false);            
             request.setDefaultValue(defaultValue);
             request.setUpdatedAt(property.getUpdatedAt());
             request.setUpdatedBy(Constant.THIS_PROCESS_UPDATED);

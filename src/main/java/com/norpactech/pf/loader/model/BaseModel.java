@@ -16,10 +16,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.norpactech.pf.utils.ApiResponse;
-import com.norpactech.pf.utils.Constant;
-import com.norpactech.pf.utils.GenericSelectResponse;
-import com.norpactech.pf.utils.TextUtils;
+import com.norpactech.nc.api.utils.ApiResponse;
+import com.norpactech.nc.api.utils.GenericSelectResponse;
+import com.norpactech.nc.utils.Constant;
+import com.norpactech.nc.utils.TextUtils;
 
 public class BaseModel {
 

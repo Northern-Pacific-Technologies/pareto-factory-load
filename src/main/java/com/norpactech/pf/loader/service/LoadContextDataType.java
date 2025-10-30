@@ -3,12 +3,12 @@ import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.norpactech.nc.api.utils.ApiResponse;
+import com.norpactech.nc.utils.TextUtils;
 import com.norpactech.pf.loader.dto.ContextDataTypePostApiRequest;
 import com.norpactech.pf.loader.dto.ContextDataTypePutApiRequest;
 import com.norpactech.pf.loader.dto.UserDeleteApiRequest;
-import com.norpactech.pf.utils.ApiResponse;
 import com.norpactech.pf.utils.Constant;
-import com.norpactech.pf.utils.TextUtils;
 
 public class LoadContextDataType extends BaseLoader {
 
