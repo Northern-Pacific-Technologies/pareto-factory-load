@@ -3,9 +3,7 @@ import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.norpactech.nc.api.utils.ApiResponse;
 import com.norpactech.nc.utils.TextUtils;
-import com.norpactech.pf.loader.dto.SchemaDeleteApiRequest;
 import com.norpactech.pf.loader.dto.SchemaPostApiRequest;
 import com.norpactech.pf.loader.dto.SchemaPutApiRequest;
 import com.norpactech.pf.utils.Constant;
@@ -44,7 +42,6 @@ public class LoadSchema extends BaseLoader {
           continue;
         }
         var schema = schemaRepository.findOne(tenant.getId(), name);
-        ApiResponse response = null; 
             
         if (action.startsWith("p")) {
           if (schema == null) {
@@ -55,7 +52,15 @@ public class LoadSchema extends BaseLoader {
             request.setDatabase(database);
             request.setUsername(username);
             request.setCreatedBy(Constant.THIS_PROCESS_CREATED);
-            response = schemaRepository.save(request);
+            var response = schemaRepository.save(request);
+            
+            if (response.getData() == null) {
+              logger.error("Schema failed for: {}, {}", name, response.getMeta().getDetail());
+              errors++;
+            }
+            else {
+              persisted++;
+            }
           }
           else {
             SchemaPutApiRequest request = new SchemaPutApiRequest();
@@ -66,23 +71,16 @@ public class LoadSchema extends BaseLoader {
             request.setUsername(username);
             request.setUpdatedAt(schema.getUpdatedAt());
             request.setUpdatedBy(Constant.THIS_PROCESS_UPDATED);
-            response = schemaRepository.save(request);
+            var response = schemaRepository.save(request);
+            
+            if (response.getData() == null) {
+              logger.error("Schema failed for: {}, {}", name, response.getMeta().getDetail());
+              errors++;
+            }
+            else {
+              persisted++;
+            }
           }
-          if (response.getData() == null) {
-            logger.error(this.getClass().getName() + " failed for: " + tenantName + " " + response.getMeta().getDetail());
-            errors++;
-          }
-          else {
-            persisted++;
-          }
-        }
-        else if (action.startsWith("d") && schema != null) {
-          SchemaDeleteApiRequest request = new SchemaDeleteApiRequest();
-          request.setId(schema.getId());
-          request.setUpdatedAt(schema.getUpdatedAt());
-          request.setUpdatedBy(Constant.THIS_PROCESS_DELETED);
-          schemaRepository.delete(request);
-          deleted++;
         }
       }
     }

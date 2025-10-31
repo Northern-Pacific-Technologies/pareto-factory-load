@@ -6,10 +6,8 @@ import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.norpactech.nc.api.utils.ApiResponse;
 import com.norpactech.nc.utils.TextUtils;
 import com.norpactech.pf.loader.dto.TenantUserPostApiRequest;
-import com.norpactech.pf.loader.dto.UserDeleteApiRequest;
 import com.norpactech.pf.loader.dto.UserPostApiRequest;
 import com.norpactech.pf.loader.dto.UserPutApiRequest;
 import com.norpactech.pf.loader.model.TenantUser;
@@ -36,17 +34,17 @@ public class LoadUser extends BaseLoader {
         if (isComment(csvRecord)) {
           continue;
         }
-        String action = TextUtils.toString(csvRecord.get("action")).toLowerCase();
-        String tenantName = TextUtils.toString(csvRecord.get("tenant"));
-        String email = TextUtils.toString(csvRecord.get("email"));
-        String lastName = TextUtils.toString(csvRecord.get("last_name"));
-        String firstName = TextUtils.toString(csvRecord.get("first_name"));
-        String phone = TextUtils.toString(csvRecord.get("phone"));
-        String street1 = TextUtils.toString(csvRecord.get("street1"));
-        String street2 = TextUtils.toString(csvRecord.get("street2"));
-        String city = TextUtils.toString(csvRecord.get("city"));
-        String state = TextUtils.toString(csvRecord.get("state"));
-        String zipCode = TextUtils.toString(csvRecord.get("zip_code"));
+        var action = TextUtils.toString(csvRecord.get("action")).toLowerCase();
+        var tenantName = TextUtils.toString(csvRecord.get("tenant"));
+        var email = TextUtils.toString(csvRecord.get("email"));
+        var lastName = TextUtils.toString(csvRecord.get("last_name"));
+        var firstName = TextUtils.toString(csvRecord.get("first_name"));
+        var phone = TextUtils.toString(csvRecord.get("phone"));
+        var street1 = TextUtils.toString(csvRecord.get("street1"));
+        var street2 = TextUtils.toString(csvRecord.get("street2"));
+        var city = TextUtils.toString(csvRecord.get("city"));
+        var state = TextUtils.toString(csvRecord.get("state"));
+        var zipCode = TextUtils.toString(csvRecord.get("zip_code"));
         LocalDateTime termsAccepted = LocalDateTime.now(ZoneOffset.UTC);
         
         var tenant = tenantRepository.findOne(tenantName);
@@ -55,7 +53,6 @@ public class LoadUser extends BaseLoader {
           continue;
         }
         var user = userRepository.findOne(email);
-        ApiResponse response = null; 
         
         if (action.startsWith("p")) {
           if (user == null) {
@@ -72,7 +69,15 @@ public class LoadUser extends BaseLoader {
             request.setZipCode(zipCode);
             request.setTermsAccepted(termsAccepted);
             request.setCreatedBy(Constant.THIS_PROCESS_CREATED);
-            response = userRepository.save(request);                 
+            var response = userRepository.save(request);   
+            
+            if (response.getData() == null) {
+              logger.error("User failed for: {}, {}", email, response.getMeta().getDetail());
+              errors++;
+            }
+            else {
+              persisted++;
+            }
           }
           else {
             var request = new UserPutApiRequest();
@@ -90,20 +95,16 @@ public class LoadUser extends BaseLoader {
             request.setTermsAccepted(termsAccepted);
             request.setUpdatedAt(user.getUpdatedAt());
             request.setUpdatedBy(Constant.THIS_PROCESS_UPDATED);
-            response = userRepository.save(request);                 
-          }
-          if (response.getData() == null) {
-            if (response.getError() != null) {
-              logger.error(response.getError().toString());
+            var response = userRepository.save(request);   
+            
+            if (response.getData() == null) {
+              logger.error("User failed for: {}, {}", email, response.getMeta().getDetail());
+              errors++;
             }
             else {
-              logger.error(this.getClass().getName() + " failed for: " + email + " " + response.getMeta().getDetail());
+              persisted++;
             }
-            errors++;
           }
-          else {
-            persisted++;
-          }          
           user = userRepository.findOne(email);          
           tenant = tenantRepository.findOne(tenantName);
           
@@ -113,36 +114,24 @@ public class LoadUser extends BaseLoader {
           if (tenant == null) {
             throw new Exception("Null Tenant prior to saving TenantUser: " + tenantName);
           }
+          
           TenantUser tenantUser = tenantUserRepository.get(tenant.getId(), user.getId());
           if (tenantUser == null) {
             TenantUserPostApiRequest request = new TenantUserPostApiRequest();
             request.setIdTenant(tenant.getId());
             request.setIdUser(user.getId());
-            tenantUserRepository.save(request);
+            var response = tenantUserRepository.save(request);
             
             if (response.getData() == null) {
-              if (response.getError() != null) {
-                logger.error(response.getError().toString());
-              }
-              else {
-                logger.error(this.getClass().getName() + " failed for: " + email + " " + response.getMeta().getDetail());
-              }
+              logger.error("Tenant-User failed for: {}, {}", email + " " + tenant, response.getMeta().getDetail());
               errors++;
             }
             else {
-              persisted++;          
-            }          
+              persisted++;
+            }
           }
         }
-        else if (action.startsWith("d") && user != null) {
-          var request = new UserDeleteApiRequest();
-          request.setId(user.getId());
-          request.setUpdatedAt(user.getUpdatedAt());
-          request.setUpdatedBy(Constant.THIS_PROCESS_DELETED);
-          userRepository.delete(request);
-          deleted++;
-        }
-      }  // for
+      }
     }
     catch (Exception e) {
       logger.error("Error Loading User {}", e.getMessage());

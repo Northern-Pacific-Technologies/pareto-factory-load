@@ -3,9 +3,7 @@ import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.norpactech.nc.api.utils.ApiResponse;
 import com.norpactech.nc.utils.TextUtils;
-import com.norpactech.pf.loader.dto.ProjectDeleteApiRequest;
 import com.norpactech.pf.loader.dto.ProjectPostApiRequest;
 import com.norpactech.pf.loader.dto.ProjectPutApiRequest;
 import com.norpactech.pf.utils.Constant;
@@ -52,7 +50,6 @@ public class LoadProject extends BaseLoader {
           continue;
         }
         var project = projectRepository.findOne(tenant.getId(), schema.getId(), name);
-        ApiResponse response = null; 
             
         if (action.startsWith("p")) {
           if (project == null) {
@@ -64,7 +61,15 @@ public class LoadProject extends BaseLoader {
             request.setDomain(domain);
             request.setArtifact(artifact);
             request.setCreatedBy(Constant.THIS_PROCESS_CREATED);
-            response = projectRepository.save(request);
+            var response = projectRepository.save(request);
+            
+            if (response.getData() == null) {
+              logger.error("Project failed for: {}, {}", name, response.getMeta().getDetail());
+              errors++;
+            }
+            else {
+              persisted++;
+            }
           }
           else {
             var request = new ProjectPutApiRequest();
@@ -75,23 +80,16 @@ public class LoadProject extends BaseLoader {
             request.setArtifact(artifact);
             request.setUpdatedAt(project.getUpdatedAt());
             request.setUpdatedBy(Constant.THIS_PROCESS_UPDATED);
-            response = projectRepository.save(request);
+            var response = projectRepository.save(request);
+            
+            if (response.getData() == null) {
+              logger.error("Project failed for: {}, {}", name, response.getMeta().getDetail());
+              errors++;
+            }
+            else {
+              persisted++;
+            }
           }
-          if (response.getData() == null) {
-            logger.error(this.getClass().getName() + " failed for: " + tenantName + " " + response.getMeta().getDetail());
-            errors++;
-          }
-          else {
-            persisted++;
-          }
-        }
-        else if (action.startsWith("d") && project != null) {
-          ProjectDeleteApiRequest request = new ProjectDeleteApiRequest();
-          request.setId(project.getId());
-          request.setUpdatedAt(project.getUpdatedAt());
-          request.setUpdatedBy(Constant.THIS_PROCESS_DELETED);
-          projectRepository.delete(request);
-          deleted++;
         }
       }
     }

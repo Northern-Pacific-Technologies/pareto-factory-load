@@ -6,7 +6,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.norpactech.nc.api.utils.ApiResponse;
 import com.norpactech.nc.utils.TextUtils;
 import com.norpactech.pf.loader.dto.CardinalityPostApiRequest;
 import com.norpactech.pf.loader.dto.CardinalityPutApiRequest;
@@ -69,7 +68,7 @@ public class LoadProperty extends BaseLoader {
         
         var tenant = tenantRepository.findOne(tenantName);
         if (tenant == null) {
-          logger.error("Tenant {} not found. Ignoring GenericDataType {}.", tenantName, name);
+          logger.error("Tenant {} not found. Ignoring Property {}.", tenantName, name);
           continue;
         }
 
@@ -88,7 +87,6 @@ public class LoadProperty extends BaseLoader {
         if (StringUtils.isNotEmpty(validationName)) {
           validationRepository.findOne(tenant.getId(), validationName);
         }
-        
         // The generic data type is either in the property or property type (domain)
         UUID idGenericDataType = null;
         var genericDataType = genericDataTypeRepository.findOne(tenant.getId(), dataTypeName);
@@ -105,7 +103,6 @@ public class LoadProperty extends BaseLoader {
         }
 
         var property = propertyRepository.findOne(tenant.getId(), dataObject.getId(), name);
-        ApiResponse response = null; 
         
         if (action.startsWith("p")) {
           if (property == null) {
@@ -125,7 +122,16 @@ public class LoadProperty extends BaseLoader {
             request.setIsNullable(isNullable == null ? true : false);            
             request.setDefaultValue(defaultValue);
             request.setCreatedBy(Constant.THIS_PROCESS_CREATED);
-            response = propertyRepository.save(request);                    
+            var response = propertyRepository.save(request);    
+            
+            if (response.getData() == null) {
+              logger.error("Property failed for: {}, {}", name, response.getMeta().getDetail());
+              errors++;
+              continue;
+            }
+            else {
+              persisted++;
+            }
           }
           else {
             var request = new PropertyPutApiRequest();
@@ -144,19 +150,16 @@ public class LoadProperty extends BaseLoader {
             request.setDefaultValue(defaultValue);
             request.setUpdatedAt(property.getUpdatedAt());
             request.setUpdatedBy(Constant.THIS_PROCESS_UPDATED);
-            response = propertyRepository.save(request);
-          }
-          if (response.getData() == null) {
-            if (response.getError() != null) {
-              logger.error(response.getError().toString());
+            var response = propertyRepository.save(request);
+            
+            if (response.getData() == null) {
+              logger.error("Property failed for: {}, {}", name, response.getMeta().getDetail());
+              errors++;
+              continue;
             }
             else {
-              logger.error(this.getClass().getName() + " failed for: " + name + " " + response.getMeta().getDetail());
+              persisted++;
             }
-            errors++;
-          }
-          else {
-            persisted++;
           }
           // Load the cardinality
           if (StringUtils.isNotEmpty(references)) {   
@@ -197,7 +200,15 @@ public class LoadProperty extends BaseLoader {
               request.setIdRtCardinalityStrength(entryCardinalityStrength.getId());
               request.setHasReferentialAction(hasReferentialAction);
               request.setCreatedBy(Constant.THIS_PROCESS_CREATED);
-              cardinalityRepository.save(request);
+              var response = cardinalityRepository.save(request);
+              
+              if (response.getData() == null) {
+                logger.error("Cardinality failed for: {}, {}", name, response.getMeta().getDetail());
+                errors++;
+              }
+              else {
+                persisted++;
+              }
             }
             else {
               var request = new CardinalityPutApiRequest();
@@ -207,10 +218,17 @@ public class LoadProperty extends BaseLoader {
               request.setHasReferentialAction(hasReferentialAction);
               request.setUpdatedAt(thisCardinality.getUpdatedAt());
               request.setUpdatedBy(Constant.THIS_PROCESS_UPDATED);
-              cardinalityRepository.save(request);
+              var response = cardinalityRepository.save(request);
+
+              if (response.getData() == null) {
+                logger.error("Cardinality failed for: {}, {}", name, response.getMeta().getDetail());
+                errors++;
+              }
+              else {
+                persisted++;
+              }
             }
           }
-          persisted++;
         }
       }
     }

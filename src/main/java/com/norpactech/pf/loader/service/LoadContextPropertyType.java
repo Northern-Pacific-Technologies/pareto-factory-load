@@ -3,11 +3,9 @@ import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.norpactech.nc.api.utils.ApiResponse;
 import com.norpactech.nc.utils.TextUtils;
 import com.norpactech.pf.loader.dto.ContextPropertyTypePostApiRequest;
 import com.norpactech.pf.loader.dto.ContextPropertyTypePutApiRequest;
-import com.norpactech.pf.loader.dto.UserDeleteApiRequest;
 import com.norpactech.pf.utils.Constant;
 
 public class LoadContextPropertyType extends BaseLoader {
@@ -73,7 +71,6 @@ public class LoadContextPropertyType extends BaseLoader {
           continue;
         }
         var contextPropertyType = contextPropertyTypeRepository.findOne(tenant.getId(), context.getId(), genericPropertyType.getId());
-        ApiResponse response = null; 
         
         if (action.startsWith("p")) {
           if (contextPropertyType == null) {
@@ -86,7 +83,15 @@ public class LoadContextPropertyType extends BaseLoader {
             request.setIsNullable(isNullable == null ? true : false);            
             request.setDefaultValue(defaultValue); 
             request.setCreatedBy(Constant.THIS_PROCESS_CREATED);
-            response = contextPropertyTypeRepository.save(request);                    
+            var response = contextPropertyTypeRepository.save(request);   
+            
+            if (response.getData() == null) {
+              logger.error("Context Property Type failed for: " + genericPropertyTypeName + " " + response.getMeta().getDetail());
+              errors++;
+            }
+            else {
+              persisted++;
+            }
           }
           else {
             var request = new ContextPropertyTypePutApiRequest();
@@ -98,28 +103,16 @@ public class LoadContextPropertyType extends BaseLoader {
             request.setDefaultValue(defaultValue); 
             request.setUpdatedAt(contextPropertyType.getUpdatedAt());
             request.setUpdatedBy(Constant.THIS_PROCESS_UPDATED);
-            response = contextPropertyTypeRepository.save(request);
-          }
-          if (response.getData() == null) {
-            if (response.getError() != null) {
-              logger.error(response.getError().toString());
+            var response = contextPropertyTypeRepository.save(request);
+
+            if (response.getData() == null) {
+              logger.error("Context Property Type failed for: " + genericPropertyTypeName + " " + response.getMeta().getDetail());
+              errors++;
             }
             else {
-              logger.error(this.getClass().getName() + " failed " + response.getMeta().getDetail());
+              persisted++;
             }
-            errors++;
           }
-          else {
-            persisted++;
-          }          
-        }
-        else if (action.startsWith("d") && contextPropertyType != null) {
-          var request = new UserDeleteApiRequest();
-          request.setId(contextPropertyType.getId());
-          request.setUpdatedAt(contextPropertyType.getUpdatedAt());
-          request.setUpdatedBy(Constant.THIS_PROCESS_DELETED);
-          userRepository.delete(request);
-          deleted++;
         }
       }
     }

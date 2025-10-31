@@ -31,14 +31,14 @@ public class LoadDataIndexProperty extends BaseLoader {
         if (isComment(csvRecord)) {
           continue;
         }
-        String action = TextUtils.toString(csvRecord.get("action")).toLowerCase();
-        String tenantName = TextUtils.toString(csvRecord.get("tenant"));
-        String schemaName = TextUtils.toString(csvRecord.get("schema"));
-        String objectName = TextUtils.toString(csvRecord.get("object"));
-        String dataIndexName = TextUtils.toString(csvRecord.get("data_index"));
-        String propertyName = TextUtils.toString(csvRecord.get("property"));
-        String sortOrder = TextUtils.toString(csvRecord.get("sort_order"));
-        Integer sequence = TextUtils.toInteger(csvRecord.get("sequence"));
+        var action = TextUtils.toString(csvRecord.get("action")).toLowerCase();
+        var tenantName = TextUtils.toString(csvRecord.get("tenant"));
+        var schemaName = TextUtils.toString(csvRecord.get("schema"));
+        var objectName = TextUtils.toString(csvRecord.get("object"));
+        var dataIndexName = TextUtils.toString(csvRecord.get("data_index"));
+        var propertyName = TextUtils.toString(csvRecord.get("property"));
+        var sortOrder = TextUtils.toString(csvRecord.get("sort_order"));
+        var sequence = TextUtils.toInteger(csvRecord.get("sequence"));
 
         var tenant = tenantRepository.findOne(tenantName);
         if (tenant == null) {
@@ -72,13 +72,13 @@ public class LoadDataIndexProperty extends BaseLoader {
         
         var refTableSortOrder = refTableTypeRepository.findOne(tenant.getId(), EnumRefTableType.SORT_ORDER.getName());
         if (refTableSortOrder == null) {
-          logger.error("Sort Order Table Type {} not found. Ignoring DataIndex {}.", EnumRefTableType.SORT_ORDER.getName(), propertyName);
+          logger.error("Sort Order Table Type {} not found. Ignoring Data Index Property {}.", EnumRefTableType.SORT_ORDER.getName(), propertyName);
           continue;
         }
 
         var refTablesSortOrder = refTablesRepository.findOne(tenant.getId(), refTableSortOrder.getId(), sortOrder);
         if (refTablesSortOrder == null) {
-          logger.error("Data Index Type {} not found. Ignoring DataIndex {}.", sortOrder, propertyName);
+          logger.error("Sort Order Value {} not found. Ignoring Data Index Property {}.", sortOrder, propertyName);
           continue;
         }        
 

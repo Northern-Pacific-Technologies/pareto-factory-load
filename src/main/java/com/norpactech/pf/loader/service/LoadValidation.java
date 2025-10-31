@@ -3,9 +3,7 @@ import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.norpactech.nc.api.utils.ApiResponse;
 import com.norpactech.nc.utils.TextUtils;
-import com.norpactech.pf.loader.dto.UserDeleteApiRequest;
 import com.norpactech.pf.loader.dto.ValidationPostApiRequest;
 import com.norpactech.pf.loader.dto.ValidationPutApiRequest;
 import com.norpactech.pf.loader.enums.EnumRefTableType;
@@ -35,13 +33,13 @@ public class LoadValidation extends BaseLoader {
         if (isComment(csvRecord)) {
           continue;
         }
-        String action = TextUtils.toString(csvRecord.get("action")).toLowerCase();
-        String tenantName = TextUtils.toString(csvRecord.get("tenant"));
-        String name = TextUtils.toString(csvRecord.get("name"));
-        String description = TextUtils.toString(csvRecord.get("description"));
-        String validationType = TextUtils.toString(csvRecord.get("validation_type"));
-        String errorMsg = TextUtils.toString(csvRecord.get("error_msg"));
-        String expression = TextUtils.toString(csvRecord.get("expression"));
+        var action = TextUtils.toString(csvRecord.get("action")).toLowerCase();
+        var tenantName = TextUtils.toString(csvRecord.get("tenant"));
+        var name = TextUtils.toString(csvRecord.get("name"));
+        var description = TextUtils.toString(csvRecord.get("description"));
+        var validationType = TextUtils.toString(csvRecord.get("validation_type"));
+        var errorMsg = TextUtils.toString(csvRecord.get("error_msg"));
+        var expression = TextUtils.toString(csvRecord.get("expression"));
 
         var tenant = tenantRepository.findOne(tenantName);
         if (tenant == null) {
@@ -61,7 +59,6 @@ public class LoadValidation extends BaseLoader {
           continue;
         }  
         var validation = validationRepository.findOne(tenant.getId(), name);
-        ApiResponse response = null; 
         
         if (action.startsWith("p")) {
           if (validation == null) {
@@ -73,7 +70,15 @@ public class LoadValidation extends BaseLoader {
             request.setErrorMsg(errorMsg);
             request.setExpression(expression);
             request.setCreatedBy(Constant.THIS_PROCESS_CREATED);
-            response = validationRepository.save(request);                    
+            var response = validationRepository.save(request);
+            
+            if (response.getData() == null) {
+              logger.error("Validation failed for: {}, {}", name, response.getMeta().getDetail());
+              errors++;
+            }
+            else {
+              persisted++;
+            }
           }
           else {
             var request = new ValidationPutApiRequest();
@@ -85,28 +90,16 @@ public class LoadValidation extends BaseLoader {
             request.setExpression(expression);
             request.setUpdatedAt(validation.getUpdatedAt());
             request.setUpdatedBy(Constant.THIS_PROCESS_UPDATED);
-            response = validationRepository.save(request);
-          }
-          if (response.getData() == null) {
-            if (response.getError() != null) {
-              logger.error(response.getError().toString());
+            var response = validationRepository.save(request);
+            
+            if (response.getData() == null) {
+              logger.error("Validation failed for: {}, {}", name, response.getMeta().getDetail());
+              errors++;
             }
             else {
-              logger.error(this.getClass().getName() + " failed for: " + name + " " + response.getMeta().getDetail());
+              persisted++;
             }
-            errors++;
           }
-          else {
-            persisted++;
-          }          
-        }
-        else if (action.startsWith("d") && validation != null) {
-          var request = new UserDeleteApiRequest();
-          request.setId(validation.getId());
-          request.setUpdatedAt(validation.getUpdatedAt());
-          request.setUpdatedBy(Constant.THIS_PROCESS_DELETED);
-          userRepository.delete(request);
-          deleted++;
         }
       }
     }

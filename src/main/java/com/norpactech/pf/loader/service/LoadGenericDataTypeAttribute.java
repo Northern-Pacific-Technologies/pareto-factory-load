@@ -3,11 +3,9 @@ import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.norpactech.nc.api.utils.ApiResponse;
 import com.norpactech.nc.utils.TextUtils;
 import com.norpactech.pf.loader.dto.GenericDataTypeAttributePostApiRequest;
 import com.norpactech.pf.loader.dto.GenericDataTypeAttributePutApiRequest;
-import com.norpactech.pf.loader.dto.UserDeleteApiRequest;
 import com.norpactech.pf.loader.enums.EnumRefTableType;
 import com.norpactech.pf.loader.model.RefTableType;
 import com.norpactech.pf.loader.model.RefTables;
@@ -74,7 +72,6 @@ public class LoadGenericDataTypeAttribute extends BaseLoader {
         }  
         
         var genericDataTypeAttribute = genericDataTypeAttributeRepository.findOne(tenant.getId(), genericDataType.getId(), name);
-        ApiResponse response = null; 
         
         if (action.startsWith("p")) {
           if (genericDataTypeAttribute == null) {
@@ -85,7 +82,15 @@ public class LoadGenericDataTypeAttribute extends BaseLoader {
             request.setName(name);
             request.setDescription(description);
             request.setCreatedBy(Constant.THIS_PROCESS_CREATED);
-            response = genericDataTypeAttributeRepository.save(request);                    
+            var response = genericDataTypeAttributeRepository.save(request); 
+
+            if (response.getData() == null) {
+              logger.error("Generic Data Type Attribute failed for: {}, {}", name, response.getMeta().getDetail());
+              errors++;
+            }
+            else {
+              persisted++;
+            }
           }
           else {
             var request = new GenericDataTypeAttributePutApiRequest();
@@ -95,28 +100,16 @@ public class LoadGenericDataTypeAttribute extends BaseLoader {
             request.setDescription(description);
             request.setUpdatedAt(genericDataTypeAttribute.getUpdatedAt());
             request.setUpdatedBy(Constant.THIS_PROCESS_UPDATED);
-            response = genericDataTypeAttributeRepository.save(request);
-          }
-          if (response.getData() == null) {
-            if (response.getError() != null) {
-              logger.error(response.getError().toString());
+            var response = genericDataTypeAttributeRepository.save(request);
+
+            if (response.getData() == null) {
+              logger.error("Generic Data Type Attribute failed for: {}, {}", name, response.getMeta().getDetail());
+              errors++;
             }
             else {
-              logger.error(this.getClass().getName() + " failed for: " + name + " " + response.getMeta().getDetail());
+              persisted++;
             }
-            errors++;
           }
-          else {
-            persisted++;
-          }          
-        }
-        else if (action.startsWith("d") && genericDataTypeAttribute != null) {
-          var request = new UserDeleteApiRequest();
-          request.setId(genericDataType.getId());
-          request.setUpdatedAt(genericDataType.getUpdatedAt());
-          request.setUpdatedBy(Constant.THIS_PROCESS_DELETED);
-          userRepository.delete(request);
-          deleted++;
         }
       }
     }

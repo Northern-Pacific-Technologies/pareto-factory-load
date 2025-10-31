@@ -41,12 +41,12 @@ public class LoadDataObject extends BaseLoader {
         
         var tenant = tenantRepository.findOne(tenantName);
         if (tenant == null) {
-          logger.error("Tenant {} not found. Ignoring Project {}.", tenantName, name);
+          logger.error("Tenant {} not found. Ignoring Data Object {}.", tenantName, name);
           continue;
         }
         var schema = schemaRepository.findOne(tenant.getId(), schemaName);
         if (schema == null) {
-          logger.error("Schema {} not found. Ignoring Project {}.", schemaName, name);
+          logger.error("Schema {} not found. Ignoring Data Object {}.", schemaName, name);
           continue;
         }
         var dataObject = dataObjectRepository.findOne(tenant.getId(), schema.getId(), name);
@@ -63,7 +63,15 @@ public class LoadDataObject extends BaseLoader {
             request.setHasAudit(hasAudit);
             request.setHasActive(hasActive);
             request.setCreatedBy(Constant.THIS_PROCESS_CREATED);
-            dataObjectRepository.save(request);      
+            var response = dataObjectRepository.save(request);   
+
+            if (response.getData() == null) {
+              logger.error("Data Index Property failed for: {}, {}", name, response.getMeta().getDetail());
+              errors++;
+            }
+            else {
+              persisted++;
+            }
           }
           else {
             var request = new DataObjectPutApiRequest();
@@ -76,9 +84,16 @@ public class LoadDataObject extends BaseLoader {
             request.setHasActive(hasActive);
             request.setUpdatedAt(dataObject.getUpdatedAt());
             request.setUpdatedBy(Constant.THIS_PROCESS_UPDATED);
-            dataObjectRepository.save(request);
+            var response = dataObjectRepository.save(request);
+            
+            if (response.getData() == null) {
+              logger.error("Data Index Property failed for: {}, {}", name, response.getMeta().getDetail());
+              errors++;
+            }
+            else {
+              persisted++;
+            }
           }
-          persisted++;
         }
       }
     }

@@ -3,11 +3,9 @@ import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.norpactech.nc.api.utils.ApiResponse;
 import com.norpactech.nc.utils.TextUtils;
 import com.norpactech.pf.loader.dto.ContextDataTypePostApiRequest;
 import com.norpactech.pf.loader.dto.ContextDataTypePutApiRequest;
-import com.norpactech.pf.loader.dto.UserDeleteApiRequest;
 import com.norpactech.pf.utils.Constant;
 
 public class LoadContextDataType extends BaseLoader {
@@ -22,7 +20,6 @@ public class LoadContextDataType extends BaseLoader {
     
     if (!isFileAvailable()) return;
 
-    logger.info("Beginning Context Data Type Load from: " + getFullPath());
     int persisted = 0;
     int deleted = 0;
     int errors = 0;
@@ -32,16 +29,16 @@ public class LoadContextDataType extends BaseLoader {
         if (isComment(csvRecord)) {
           continue;
         }
-        String action = TextUtils.toString(csvRecord.get("action")).toLowerCase();
-        String tenantName = TextUtils.toString(csvRecord.get("tenant"));
-        String schemaName = TextUtils.toString(csvRecord.get("schema"));
-        String contextName = TextUtils.toString(csvRecord.get("context"));
-        String genericName = TextUtils.toString(csvRecord.get("generic_data_type"));
-        Integer sequence = TextUtils.toInteger(csvRecord.get("sequence"));
-        String name = TextUtils.toString(csvRecord.get("name"));
-        String description = TextUtils.toString(csvRecord.get("description"));
-        String alias = TextUtils.toString(csvRecord.get("alias"));
-        String contextValue = TextUtils.toString(csvRecord.get("context_value"));
+        var action = TextUtils.toString(csvRecord.get("action")).toLowerCase();
+        var tenantName = TextUtils.toString(csvRecord.get("tenant"));
+        var schemaName = TextUtils.toString(csvRecord.get("schema"));
+        var contextName = TextUtils.toString(csvRecord.get("context"));
+        var genericName = TextUtils.toString(csvRecord.get("generic_data_type"));
+        var sequence = TextUtils.toInteger(csvRecord.get("sequence"));
+        var name = TextUtils.toString(csvRecord.get("name"));
+        var description = TextUtils.toString(csvRecord.get("description"));
+        var alias = TextUtils.toString(csvRecord.get("alias"));
+        var contextValue = TextUtils.toString(csvRecord.get("context_value"));
 
         var tenant = tenantRepository.findOne(tenantName);
         if (tenant == null) {
@@ -67,7 +64,6 @@ public class LoadContextDataType extends BaseLoader {
           continue;
         }
         var contextDataType = contextDataTypeRepository.findOne(tenant.getId(), context.getId(), genericDataType.getId());
-        ApiResponse response = null; 
         
         if (action.startsWith("p")) {
           if (contextDataType == null) {
@@ -81,7 +77,15 @@ public class LoadContextDataType extends BaseLoader {
             request.setAlias(alias);
             request.setContextValue(contextValue);
             request.setCreatedBy(Constant.THIS_PROCESS_CREATED);
-            response = contextDataTypeRepository.save(request);                    
+            var response = contextDataTypeRepository.save(request);
+            
+            if (response.getData() == null) {
+              logger.error("Context Data Type failed for: " + name + " " + response.getMeta().getDetail());
+              errors++;
+            }
+            else {
+              persisted++;
+            }
           }
           else {
             var request = new ContextDataTypePutApiRequest();
@@ -94,28 +98,16 @@ public class LoadContextDataType extends BaseLoader {
             request.setContextValue(contextValue);
             request.setUpdatedAt(contextDataType.getUpdatedAt());
             request.setUpdatedBy(Constant.THIS_PROCESS_UPDATED);
-            response = contextDataTypeRepository.save(request);
-          }
-          if (response.getData() == null) {
-            if (response.getError() != null) {
-              logger.error(response.getError().toString());
+            var response = contextDataTypeRepository.save(request);
+            
+            if (response.getData() == null) {
+              logger.error("Context Data Type failed for: " + name + " " + response.getMeta().getDetail());
+              errors++;
             }
             else {
-              logger.error(this.getClass().getName() + " failed for: " + name + " " + response.getMeta().getDetail());
+              persisted++;
             }
-            errors++;
           }
-          else {
-            persisted++;
-          }          
-        }
-        else if (action.startsWith("d") && contextDataType != null) {
-          var request = new UserDeleteApiRequest();
-          request.setId(contextDataType.getId());
-          request.setUpdatedAt(contextDataType.getUpdatedAt());
-          request.setUpdatedBy(Constant.THIS_PROCESS_DELETED);
-          userRepository.delete(request);
-          deleted++;
         }
       }
     }

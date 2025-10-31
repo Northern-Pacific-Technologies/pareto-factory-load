@@ -3,7 +3,6 @@ import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.norpactech.nc.api.utils.ApiResponse;
 import com.norpactech.nc.config.tenant.TenantContext;
 import com.norpactech.nc.utils.TextUtils;
 import com.norpactech.pf.loader.dto.TenantPostApiRequest;
@@ -23,7 +22,6 @@ public class LoadTenant extends BaseLoader {
     
     if (!isFileAvailable()) return;
     
-    logger.info("Beginning Tenant Load from: " + getFullPath());
     int persisted = 0;
     int deleted = 0;
     int errors = 0;
@@ -40,19 +38,19 @@ public class LoadTenant extends BaseLoader {
           logger.warn("Loader supports only one tenant per run. Additional tenants found after: " + tenantName);
           break;
         }
-        String action = csvRecord.get("action").toLowerCase();
-               tenantName = TextUtils.toString(csvRecord.get("name"));
-        String description = TextUtils.toString(csvRecord.get("description"));
-        String copyright = TextUtils.toString(csvRecord.get("copyright"));
-        String timeZone = TextUtils.toString(csvRecord.get("time_zone"));
+        var action = csvRecord.get("action").toLowerCase();
+            tenantName = TextUtils.toString(csvRecord.get("name"));
+        var description = TextUtils.toString(csvRecord.get("description"));
+        var copyright = TextUtils.toString(csvRecord.get("copyright"));
+        var timeZone = TextUtils.toString(csvRecord.get("time_zone"));
                 
         Tenant tenant = tenantRepositoryEx.findOne(tenantName);
         if (tenant != null) {
           // Set the Tenant Context for subsequent operations
           TenantContext.setIdTenant(tenant.getId().toString());
+          logger.info("Tenant Context Set: {}", tenant.getId().toString());
         }
-        ApiResponse response = null; 
-            
+
         if (action.startsWith("p")) {
           if (tenant == null) {
             TenantPostApiRequest request = new TenantPostApiRequest();
@@ -61,7 +59,8 @@ public class LoadTenant extends BaseLoader {
             request.setCopyright(copyright);
             request.setTimeZone(timeZone);
             request.setCreatedBy(Constant.THIS_PROCESS_CREATED);
-            response = tenantRepository.save(request);
+            var response = tenantRepository.save(request);
+            
             if (response.getData() == null) {
               logger.error(this.getClass().getName() + " failed for: " + tenantName + " " + response.getMeta().getDetail());
               errors++;
@@ -71,6 +70,7 @@ public class LoadTenant extends BaseLoader {
               tenant = tenantRepositoryEx.findOne(tenantName);
               if (tenant != null) {
                 TenantContext.setIdTenant(tenant.getId().toString());
+                logger.info("Tenant Context Set: {}", tenant.getId().toString());
                 processedTenant = true;
                 persisted++;
               }
@@ -88,18 +88,17 @@ public class LoadTenant extends BaseLoader {
             request.setTimeZone(timeZone);
             request.setUpdatedAt(tenant.getUpdatedAt());
             request.setUpdatedBy(Constant.THIS_PROCESS_UPDATED);
-            response = tenantRepository.save(request);
-          }
-          if (response.getData() == null) {
-            logger.error(this.getClass().getName() + " failed for: " + tenantName + " " + response.getMeta().getDetail());
-            errors++;
-          }
-          else {
-            processedTenant = true;
-            persisted++;
+            var response = tenantRepository.save(request);
+            
+            if (response.getData() == null) {
+              logger.error("Tenant failed for: {}, {}", tenantName, response.getMeta().getDetail());
+              errors++;
+            }
+            else {
+              persisted++;
+            }
           }
         }
-        // ... tenants cannot be deleted in the loader
       }
     }
     catch (Exception e) {

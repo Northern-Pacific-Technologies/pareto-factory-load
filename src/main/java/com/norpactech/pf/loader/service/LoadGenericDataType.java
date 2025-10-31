@@ -3,11 +3,9 @@ import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.norpactech.nc.api.utils.ApiResponse;
 import com.norpactech.nc.utils.TextUtils;
 import com.norpactech.pf.loader.dto.GenericDataTypePostApiRequest;
 import com.norpactech.pf.loader.dto.GenericDataTypePutApiRequest;
-import com.norpactech.pf.loader.dto.UserDeleteApiRequest;
 import com.norpactech.pf.utils.Constant;
 
 public class LoadGenericDataType extends BaseLoader {
@@ -41,12 +39,11 @@ public class LoadGenericDataType extends BaseLoader {
 
         var tenant = tenantRepository.findOne(tenantName);
         if (tenant == null) {
-          logger.error("Tenant {} not found. Ignoring GenericDataType {}.", tenantName, name);
+          logger.error("Tenant {} not found. Ignoring Generic Data Type {}.", tenantName, name);
           continue;
         }
         
         var genericDataType = genericDataTypeRepository.findOne(tenant.getId(), name);
-        ApiResponse response = null; 
         
         if (action.startsWith("p")) {
           if (genericDataType == null) {
@@ -57,7 +54,15 @@ public class LoadGenericDataType extends BaseLoader {
             request.setDescription(description);
             request.setAlias(alias);
             request.setCreatedBy(Constant.THIS_PROCESS_CREATED);
-            response = genericDataTypeRepository.save(request);                    
+            var response = genericDataTypeRepository.save(request);  
+            
+            if (response.getData() == null) {
+              logger.error("Generic Data Type failed for: {}, {}", name, response.getMeta().getDetail());
+              errors++;
+            }
+            else {
+              persisted++;
+            }
           }
           else {
             var request = new GenericDataTypePutApiRequest();
@@ -68,28 +73,16 @@ public class LoadGenericDataType extends BaseLoader {
             request.setAlias(alias);
             request.setUpdatedAt(genericDataType.getUpdatedAt());
             request.setUpdatedBy(Constant.THIS_PROCESS_UPDATED);
-            response = genericDataTypeRepository.save(request);
-          }
-          if (response.getData() == null) {
-            if (response.getError() != null) {
-              logger.error(response.getError().toString());
+            var response = genericDataTypeRepository.save(request);
+            
+            if (response.getData() == null) {
+              logger.error("Generic Data Type failed for: {}, {}", name, response.getMeta().getDetail());
+              errors++;
             }
             else {
-              logger.error(this.getClass().getName() + " failed for: " + name + " " + response.getMeta().getDetail());
+              persisted++;
             }
-            errors++;
           }
-          else {
-            persisted++;
-          }          
-        }
-        else if (action.startsWith("d") && genericDataType != null) {
-          var request = new UserDeleteApiRequest();
-          request.setId(genericDataType.getId());
-          request.setUpdatedAt(genericDataType.getUpdatedAt());
-          request.setUpdatedBy(Constant.THIS_PROCESS_DELETED);
-          userRepository.delete(request);
-          deleted++;
         }
       }
     }

@@ -4,11 +4,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.norpactech.nc.api.utils.ApiResponse;
 import com.norpactech.nc.utils.TextUtils;
 import com.norpactech.pf.loader.dto.GenericPropertyTypePostApiRequest;
 import com.norpactech.pf.loader.dto.GenericPropertyTypePutApiRequest;
-import com.norpactech.pf.loader.dto.UserDeleteApiRequest;
 import com.norpactech.pf.loader.model.Validation;
 import com.norpactech.pf.utils.Constant;
 
@@ -66,7 +64,6 @@ public class LoadGenericPropertyType extends BaseLoader {
           }        
         }        
         var genericPropertyType = genericPropertyTypeRepository.findOne(tenant.getId(), genericDataType.getId(), name);
-        ApiResponse response = null; 
         
         if (action.startsWith("p")) {
           if (genericPropertyType == null) {
@@ -81,7 +78,15 @@ public class LoadGenericPropertyType extends BaseLoader {
             request.setDefaultValue(defaultValue);            
             request.setIdValidation(validation != null ? validation.getId() : null);            
             request.setCreatedBy(Constant.THIS_PROCESS_CREATED);
-            response = genericPropertyTypeRepository.save(request);                    
+            var response = genericPropertyTypeRepository.save(request);  
+            
+            if (response.getData() == null) {
+              logger.error("Generic Property Type Attribute failed for: {}, {}", name, response.getMeta().getDetail());
+              errors++;
+            }
+            else {
+              persisted++;
+            }
           }
           else {
             var request = new GenericPropertyTypePutApiRequest();
@@ -95,28 +100,16 @@ public class LoadGenericPropertyType extends BaseLoader {
             request.setIdValidation(validation != null ? validation.getId() : null);            
             request.setUpdatedAt(genericPropertyType.getUpdatedAt());
             request.setUpdatedBy(Constant.THIS_PROCESS_UPDATED);
-            response = genericPropertyTypeRepository.save(request);
-          }
-          if (response.getData() == null) {
-            if (response.getError() != null) {
-              logger.error(response.getError().toString());
+            var response = genericPropertyTypeRepository.save(request);
+            
+            if (response.getData() == null) {
+              logger.error("Generic Property Type Attribute failed for: {}, {}", name, response.getMeta().getDetail());
+              errors++;
             }
             else {
-              logger.error(this.getClass().getName() + " failed for: " + name + " " + response.getMeta().getDetail());
+              persisted++;
             }
-            errors++;
           }
-          else {
-            persisted++;
-          }          
-        }
-        else if (action.startsWith("d") && genericDataType != null) {
-          var request = new UserDeleteApiRequest();
-          request.setId(genericDataType.getId());
-          request.setUpdatedAt(genericDataType.getUpdatedAt());
-          request.setUpdatedBy(Constant.THIS_PROCESS_DELETED);
-          userRepository.delete(request);
-          deleted++;
         }
       }
     }

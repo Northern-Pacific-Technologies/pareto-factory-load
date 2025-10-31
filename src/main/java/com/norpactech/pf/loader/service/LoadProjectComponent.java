@@ -3,11 +3,9 @@ import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.norpactech.nc.api.utils.ApiResponse;
 import com.norpactech.nc.utils.TextUtils;
 import com.norpactech.pf.loader.dto.ProjectComponentPostApiRequest;
 import com.norpactech.pf.loader.dto.ProjectComponentPutApiRequest;
-import com.norpactech.pf.loader.dto.ProjectDeleteApiRequest;
 import com.norpactech.pf.utils.Constant;
 
 public class LoadProjectComponent extends BaseLoader {
@@ -22,7 +20,6 @@ public class LoadProjectComponent extends BaseLoader {
     
     if (!isFileAvailable()) return;
 
-    logger.info("Beginning Project Component Load from: " + getFullPath());
     int persisted = 0;
     int deleted = 0;
     int errors = 0;
@@ -72,7 +69,6 @@ public class LoadProjectComponent extends BaseLoader {
           continue;
         }
         var projectComponent = projectComponentRepository.findOne(tenant.getId(), project.getId(), name);        
-        ApiResponse response = null; 
 
         if (action.startsWith("p")) {
           if (projectComponent == null) {
@@ -85,7 +81,15 @@ public class LoadProjectComponent extends BaseLoader {
             request.setDescription(description);
             request.setSubPackage(subPackage);
             request.setCreatedBy(Constant.THIS_PROCESS_CREATED);
-            response = projectComponentRepository.save(request);
+            var response = projectComponentRepository.save(request);
+            
+            if (response.getData() == null) {
+              logger.error("Project Component failed for: {}, {}", name, response.getMeta().getDetail());
+              errors++;
+            }
+            else {
+              persisted++;
+            }
           }
           else {
             var request = new ProjectComponentPutApiRequest();
@@ -99,23 +103,16 @@ public class LoadProjectComponent extends BaseLoader {
             request.setSubPackage(subPackage);
             request.setUpdatedAt(projectComponent.getUpdatedAt());
             request.setUpdatedBy(Constant.THIS_PROCESS_UPDATED);
-            response = projectComponentRepository.save(request);
+            var response = projectComponentRepository.save(request);
+            
+            if (response.getData() == null) {
+              logger.error("Project Component failed for: {}, {}", name, response.getMeta().getDetail());
+              errors++;
+            }
+            else {
+              persisted++;
+            }
           }
-          if (response.getData() == null) {
-            logger.error(this.getClass().getName() + " failed for: " + tenantName + " " + response.getMeta().getDetail());
-            errors++;
-          }
-          else {
-            persisted++;
-          }
-        }
-        else if (action.startsWith("d") && projectComponent != null) {
-          ProjectDeleteApiRequest request = new ProjectDeleteApiRequest();
-          request.setId(projectComponent.getId());
-          request.setUpdatedAt(projectComponent.getUpdatedAt());
-          request.setUpdatedBy(Constant.THIS_PROCESS_DELETED);
-          projectRepository.delete(request);
-          deleted++;
         }
       }
     }

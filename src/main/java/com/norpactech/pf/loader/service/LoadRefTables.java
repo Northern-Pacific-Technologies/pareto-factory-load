@@ -3,9 +3,7 @@ import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.norpactech.nc.api.utils.ApiResponse;
 import com.norpactech.nc.utils.TextUtils;
-import com.norpactech.pf.loader.dto.RefTablesDeleteApiRequest;
 import com.norpactech.pf.loader.dto.RefTablesPostApiRequest;
 import com.norpactech.pf.loader.dto.RefTablesPutApiRequest;
 import com.norpactech.pf.utils.Constant;
@@ -31,26 +29,26 @@ public class LoadRefTables extends BaseLoader {
         if (isComment(csvRecord)) {
           continue;
         }
-        String action = TextUtils.toString(csvRecord.get("action")).toLowerCase();
-        String tenantName = TextUtils.toString(csvRecord.get("tenant"));
-        String refTableTypeName = TextUtils.toString(csvRecord.get("ref_table_type"));
-        String name = TextUtils.toString(csvRecord.get("name"));
-        String description = TextUtils.toString(csvRecord.get("description"));
-        String value = TextUtils.toString(csvRecord.get("value"));
-        Integer sequence = TextUtils.toInteger(csvRecord.get("sequence"));
+        var action = TextUtils.toString(csvRecord.get("action")).toLowerCase();
+        var tenantName = TextUtils.toString(csvRecord.get("tenant"));
+        var refTableTypeName = TextUtils.toString(csvRecord.get("ref_table_type"));
+        var name = TextUtils.toString(csvRecord.get("name"));
+        var description = TextUtils.toString(csvRecord.get("description"));
+        var value = TextUtils.toString(csvRecord.get("value"));
+        var sequence = TextUtils.toInteger(csvRecord.get("sequence"));
         
         var tenant = tenantRepository.findOne(tenantName);
         if (tenant == null) {
-          logger.error("Tenant {} not found. Ignoring Schema {}.", tenantName, name);
+          logger.error("Tenant {} not found. Ignoring RefTables {}.", tenantName, name);
           continue;
         }
+        
         var refTableType = refTableTypeRepository.findOne(tenant.getId(), refTableTypeName);
         if (refTableType == null) {
-          logger.error("Reference Table Type {} not found. Ignoring Table Entry for {}.", refTableTypeName, name);
+          logger.error("Reference Table Type {} not found. Ignoring RefTables Entry for {}.", refTableTypeName, name);
           continue;
         }
         var refTables = refTablesRepository.findOne(tenant.getId(), refTableType.getId(), name);
-        ApiResponse response = null; 
         
         if (action.startsWith("p")) {
           if (refTables == null) {
@@ -62,7 +60,15 @@ public class LoadRefTables extends BaseLoader {
             request.setValue(value);
             request.setSequence(sequence);
             request.setCreatedBy(Constant.THIS_PROCESS_CREATED);
-            response = refTablesRepository.save(request);
+            var response = refTablesRepository.save(request);
+            
+            if (response.getData() == null) {
+              logger.error("RefTables failed for: {}, {}", name, response.getMeta().getDetail());
+              errors++;
+            }
+            else {
+              persisted++;
+            }
           }
           else {
             RefTablesPutApiRequest request = new RefTablesPutApiRequest();
@@ -73,23 +79,16 @@ public class LoadRefTables extends BaseLoader {
             request.setSequence(sequence);
             request.setUpdatedAt(refTables.getUpdatedAt());
             request.setUpdatedBy(Constant.THIS_PROCESS_UPDATED);
-            response = refTablesRepository.save(request);
+            var response = refTablesRepository.save(request);
+            
+            if (response.getData() == null) {
+              logger.error("RefTables failed for: {}, {}", name, response.getMeta().getDetail());
+              errors++;
+            }
+            else {
+              persisted++;
+            }
           }
-          if (response.getData() == null) {
-            logger.error(this.getClass().getName() + " failed for: " + tenantName + " " + response.getMeta().getDetail());
-            errors++;
-          }
-          else {
-            persisted++;
-          }
-        }
-        else if (action.startsWith("d") && refTables != null) {
-          RefTablesDeleteApiRequest request = new RefTablesDeleteApiRequest();
-          request.setId(refTables.getId());
-          request.setUpdatedAt(refTables.getUpdatedAt());
-          request.setUpdatedBy(Constant.THIS_PROCESS_DELETED);
-          refTablesRepository.delete(request);
-          deleted++;
         }
       }
     }

@@ -42,31 +42,31 @@ public class LoadDataIndex extends BaseLoader {
 
         var tenant = tenantRepository.findOne(tenantName);
         if (tenant == null) {
-          logger.error("Tenant {} not found. Ignoring Project {}.", tenantName, name);
+          logger.error("Tenant {} not found. Ignoring Data Index {}.", tenantName, name);
           continue;
         }
         var schema = schemaRepository.findOne(tenant.getId(), schemaName);
         if (schema == null) {
-          logger.error("Schema {} not found. Ignoring Project {}.", schemaName, name);
+          logger.error("Schema {} not found. Ignoring Data Index {}.", schemaName, name);
           continue;
         }
         
         var dataObject = dataObjectRepository.findOne(tenant.getId(), schema.getId(), objectName);
         if (dataObject == null) {
-          logger.error("Data Object {} not found. Ignoring Index {}.", objectName, name);
+          logger.error("Data Object {} not found. Ignoring Data Index {}.", objectName, name);
           continue;
         }
         
         RefTableType refTableIndex = refTableTypeRepository.findOne(tenant.getId(), EnumRefTableType.INDEX_TYPE.getName());
         if (refTableIndex == null) {
-          logger.error("Data Index Table Type {} not found. Ignoring DataIndex {}.", EnumRefTableType.INDEX_TYPE.getName(), name);
+          logger.error("Data Index Table Type {} not found. Ignoring Data Index {}.", EnumRefTableType.INDEX_TYPE.getName(), name);
           continue;
         }
         RefTables refTablesIndexType = null;
         if (indexType != null) {
           refTablesIndexType = refTablesRepository.findOne(tenant.getId(), refTableIndex.getId(), indexType);
           if (refTablesIndexType == null) {
-            logger.error("Data Index Type {} not found. Ignoring DataIndex {}.", indexType, name);
+            logger.error("Data Index Type {} not found. Ignoring Data Index {}.", indexType, name);
             continue;
           }        
         }

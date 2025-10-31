@@ -3,7 +3,6 @@ import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.norpactech.nc.api.utils.ApiResponse;
 import com.norpactech.nc.utils.TextUtils;
 import com.norpactech.pf.loader.dto.ContextPostApiRequest;
 import com.norpactech.pf.loader.dto.ContextPutApiRequest;
@@ -35,7 +34,6 @@ public class LoadContext extends BaseLoader {
         var description = TextUtils.toString(csvRecord.get("description"));
 
         var context = contextRepository.findOne(name);
-        ApiResponse response = null; 
         
         if (action.startsWith("p")) {
           if (context == null) {
@@ -43,11 +41,14 @@ public class LoadContext extends BaseLoader {
             request.setName(name);
             request.setDescription(description);
             request.setCreatedBy(Constant.THIS_PROCESS_CREATED);
-            response = contextRepository.save(request);
+            var response = contextRepository.save(request);
             
             if (response.getData() == null) {
-              logger.error(this.getClass().getName() + " failed for: " + name + " " + response.getMeta().getDetail());
+              logger.error("Context failed for: " + name + " " + response.getMeta().getDetail());
               errors++;
+            }
+            else {
+              persisted++;
             }
           }
           else {
@@ -57,14 +58,15 @@ public class LoadContext extends BaseLoader {
             request.setDescription(description);
             request.setUpdatedAt(context.getUpdatedAt());
             request.setUpdatedBy(Constant.THIS_PROCESS_UPDATED);
-            response = contextRepository.save(request);
-          }
-          if (response.getData() == null) {
-            logger.error(this.getClass().getName() + " failed for: " + name + " " + response.getMeta().getDetail());
-            errors++;
-          }
-          else {
-            persisted++;
+            var response = contextRepository.save(request);
+
+            if (response.getData() == null) {
+              logger.error("Context failed for: " + name + " " + response.getMeta().getDetail());
+              errors++;
+            }
+            else {
+              persisted++;
+            }
           }
         }
       }
