@@ -10,8 +10,6 @@ import com.norpactech.pf.loader.dto.ContextPropertyTypePutApiRequest;
 import com.norpactech.pf.loader.dto.UserDeleteApiRequest;
 import com.norpactech.pf.utils.Constant;
 
-import software.amazon.awssdk.utils.StringUtils;
-
 public class LoadContextPropertyType extends BaseLoader {
 
   private static final Logger logger = LoggerFactory.getLogger(LoadContextPropertyType.class);

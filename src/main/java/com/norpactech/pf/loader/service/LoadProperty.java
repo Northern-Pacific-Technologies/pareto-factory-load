@@ -8,10 +8,16 @@ import org.slf4j.LoggerFactory;
 
 import com.norpactech.nc.api.utils.ApiResponse;
 import com.norpactech.nc.utils.TextUtils;
+import com.norpactech.pf.loader.dto.CardinalityPostApiRequest;
+import com.norpactech.pf.loader.dto.CardinalityPutApiRequest;
 import com.norpactech.pf.loader.dto.PropertyPostApiRequest;
 import com.norpactech.pf.loader.dto.PropertyPutApiRequest;
-import com.norpactech.pf.loader.dto.UserDeleteApiRequest;
+import com.norpactech.pf.loader.enums.EnumRefTableType;
+import com.norpactech.pf.loader.model.Cardinality;
+import com.norpactech.pf.loader.model.DataObject;
 import com.norpactech.pf.loader.model.GenericPropertyType;
+import com.norpactech.pf.loader.model.RefTableType;
+import com.norpactech.pf.loader.model.RefTables;
 import com.norpactech.pf.loader.model.Validation;
 import com.norpactech.pf.utils.Constant;
 
@@ -27,7 +33,6 @@ public class LoadProperty extends BaseLoader {
     
     if (!isFileAvailable()) return;
 
-    logger.info("Beginning Generic Data Type Load from: " + getFullPath());
     int persisted = 0;
     int deleted = 0;
     int errors = 0;
@@ -45,9 +50,8 @@ public class LoadProperty extends BaseLoader {
         var sequence = TextUtils.toInteger(csvRecord.get("sequence"));
         var name = TextUtils.toString(csvRecord.get("name"));
         var description = TextUtils.toString(csvRecord.get("description"));
-        // TODO: implement references and cardinality
-        // var references = TextUtils.toString(csvRecord.get("references"));
-        // var cardinality = TextUtils.toString(csvRecord.get("cardinality"));
+        var references = TextUtils.toString(csvRecord.get("references"));
+        var cardinality = TextUtils.toString(csvRecord.get("cardinality"));
         Boolean isUpdatable = true;
         if (StringUtils.isNotEmpty(csvRecord.get("is_updatable"))) {
           isUpdatable = TextUtils.toBoolean(csvRecord.get("is_updatable"));
@@ -56,8 +60,7 @@ public class LoadProperty extends BaseLoader {
         if (StringUtils.isNotEmpty(csvRecord.get("fk_viewable"))) {
           fkViewable = TextUtils.toBoolean(csvRecord.get("fk_viewable"));
         }
-        // TODO: implement hasReferentialAction
-        // var hasReferentialAction = TextUtils.toBoolean(csvRecord.get("has_referential_action"));
+        var hasReferentialAction = TextUtils.toBoolean(csvRecord.get("has_referential_action"));
         var length = TextUtils.toInteger(csvRecord.get("length"));
         var scale = TextUtils.toInteger(csvRecord.get("scale"));
         var isNullable = TextUtils.toBoolean(csvRecord.get("is_nullable"));
@@ -154,15 +157,60 @@ public class LoadProperty extends BaseLoader {
           }
           else {
             persisted++;
-          }          
-        }
-        else if (action.startsWith("d") && genericDataType != null) {
-          var request = new UserDeleteApiRequest();
-          request.setId(genericDataType.getId());
-          request.setUpdatedAt(genericDataType.getUpdatedAt());
-          request.setUpdatedBy(Constant.THIS_PROCESS_DELETED);
-          userRepository.delete(request);
-          deleted++;
+          }
+          // Load the cardinality
+          if (StringUtils.isNotEmpty(references)) {   
+            property = propertyRepository.findOne(tenant.getId(), dataObject.getId(), name); // Refresh
+            if (property == null) {
+              continue;
+            }
+            DataObject cardinalityDataObject = dataObjectRepository.findOne(tenant.getId(), schema.getId(), references);
+
+            if (cardinalityDataObject == null) {
+              continue;
+            }
+            RefTableType refTableCardinality = refTableTypeRepository.findOne(tenant.getId(), EnumRefTableType.CARDINALITY.getName());
+            if (refTableCardinality == null) {
+              continue;
+            }
+            RefTables entryCardinality = refTablesRepository.findOne(tenant.getId(), refTableCardinality.getId(), cardinality);
+            if (entryCardinality == null) {
+              continue;
+            }
+            RefTableType refTableStrength = refTableTypeRepository.findOne(tenant.getId(), EnumRefTableType.CARDINALITY_STRENGTH.getName());
+            if (refTableStrength == null) {
+              continue;
+            }
+            // Checked for the referenced object null attribute and set the strength accordingly
+            RefTables entryCardinalityStrength = refTablesRepository.findOne(tenant.getId(), refTableStrength.getId(), isNullable ? "Aggregation" : "Composition");
+            if (entryCardinalityStrength == null) {
+              continue;
+            }
+            Cardinality thisCardinality = cardinalityRepository.findOne(tenant.getId(), property.getId(), cardinalityDataObject.getId());
+
+            if (thisCardinality == null) {
+              var request = new CardinalityPostApiRequest();
+              request.setIdTenant(tenant.getId());
+              request.setIdProperty(property.getId());
+              request.setIdDataObject(cardinalityDataObject.getId());
+              request.setIdRtCardinality(entryCardinality.getId());
+              request.setIdRtCardinalityStrength(entryCardinalityStrength.getId());
+              request.setHasReferentialAction(hasReferentialAction);
+              request.setCreatedBy(Constant.THIS_PROCESS_CREATED);
+              cardinalityRepository.save(request);
+            }
+            else {
+              var request = new CardinalityPutApiRequest();
+              request.setId(thisCardinality.getId());
+              request.setIdRtCardinality(entryCardinality.getId());
+              request.setIdRtCardinalityStrength(entryCardinalityStrength.getId());
+              request.setHasReferentialAction(hasReferentialAction);
+              request.setUpdatedAt(thisCardinality.getUpdatedAt());
+              request.setUpdatedBy(Constant.THIS_PROCESS_UPDATED);
+              cardinalityRepository.save(request);
+            }
+          }
+          persisted++;
         }
       }
     }
@@ -173,6 +221,6 @@ public class LoadProperty extends BaseLoader {
     finally {
       if (this.getCsvParser() != null) this.getCsvParser().close();
     }
-    logger.info("Completed Generic Data Type Load with {} persisted, {} deleted, and {} errors", persisted, deleted, errors);
+    logger.info("Completed Property Load with {} persisted, {} deleted, and {} errors", persisted, deleted, errors);
   }
 }

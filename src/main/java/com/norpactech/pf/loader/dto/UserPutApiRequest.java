@@ -58,7 +58,8 @@ public class UserPutApiRequest {
     return request;
   }
   
-  // Getters and Setters...    
+  // Getters and Setters...
+    
   public UUID getId() {
     return this.id;
   }

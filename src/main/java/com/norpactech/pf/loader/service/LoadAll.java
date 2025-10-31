@@ -11,21 +11,30 @@ public class LoadAll {
     logger.info("Beginning Load All from: {}", filePath);
 
     new LoadTenant(filePath, "Tenant.csv").load();
+    
+    new LoadUser(filePath, "User.csv").load(); // includes TenantUser  **** Revisit ****
+    
+    new LoadSchema(filePath, "Schema.csv").load();
+    new LoadContext(filePath, "Context.csv").load();
     new LoadRefTableType(filePath, "RefTableType.csv").load();
     new LoadRefTables(filePath, "RefTables.csv").load();
-    new LoadSchema(filePath, "Schema.csv").load();
-    new LoadUser(filePath, "User.csv").load(); // includes TenantUser
-    new LoadValidation(filePath, "Validation.csv").load();
+    new LoadValidation(filePath, "Validation.csv").load();    
     new LoadGenericDataType(filePath, "GenericDataType.csv").load();
     new LoadGenericDataTypeAttribute(filePath, "GenericDataTypeAttribute.csv").load();
     new LoadGenericPropertyType(filePath, "GenericPropertyType.csv").load();
     new LoadContextDataType(filePath, "ContextDataType.csv").load();
     new LoadContextPropertyType(filePath, "ContextPropertyType.csv").load();
+    new LoadDataObject(filePath, "DataObject.csv").load();
+    new LoadProperty(filePath, "Property.csv").load();
+    new LoadDataIndex(filePath, "DataIndex.csv").load();
+// Data Index Property
+    
+// Plugin
     new LoadProject(filePath, "Project.csv").load();
     new LoadProjectComponent(filePath, "ProjectComponent.csv").load();
     new LoadProjectComponentProperty(filePath, "ProjectComponentProperty.csv").load();
-    new LoadProperty(filePath, "Property.csv").load();
-
+    new LoadTenant(filePath, "Tenant.csv").load();  // Repeated
+    
     logger.info("Completed Load All");
   }
 }  

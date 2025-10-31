@@ -11,9 +11,11 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.StringUtils;
 
+import com.norpactech.pf.loader.repository.CardinalityRepository;
 import com.norpactech.pf.loader.repository.ContextDataTypeRepository;
 import com.norpactech.pf.loader.repository.ContextPropertyTypeRepository;
 import com.norpactech.pf.loader.repository.ContextRepository;
+import com.norpactech.pf.loader.repository.DataIndexRepository;
 import com.norpactech.pf.loader.repository.DataObjectRepository;
 import com.norpactech.pf.loader.repository.GenericDataTypeAttributeRepository;
 import com.norpactech.pf.loader.repository.GenericDataTypeRepository;
@@ -36,12 +38,14 @@ public abstract class BaseLoader {
 
   private static final Logger logger = Logger.getLogger(BaseLoader.class.getName());
 
+  protected static final CardinalityRepository cardinalityRepository = new CardinalityRepository();
   protected static final ContextRepository contextRepository = new ContextRepository();
   protected static final ContextDataTypeRepository contextDataTypeRepository = new ContextDataTypeRepository();
   protected static final ContextPropertyTypeRepository contextPropertyTypeRepository = new ContextPropertyTypeRepository();
   protected static final GenericDataTypeAttributeRepository genericDataTypeAttributeRepository = new GenericDataTypeAttributeRepository();
   protected static final GenericDataTypeRepository genericDataTypeRepository = new GenericDataTypeRepository();
   protected static final GenericPropertyTypeRepositoryEx genericPropertyTypeRepository = new GenericPropertyTypeRepositoryEx();
+  protected static final DataIndexRepository dataIndexRepository = new DataIndexRepository();
   protected static final PluginRepository pluginRepository = new PluginRepository();
   protected static final ProjectComponentPropertyRepository projectComponentPropertyRepository = new ProjectComponentPropertyRepository();
   protected static final ProjectComponentRepository projectComponentRepository = new ProjectComponentRepository();
