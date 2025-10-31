@@ -15,6 +15,7 @@ import com.norpactech.pf.loader.repository.CardinalityRepository;
 import com.norpactech.pf.loader.repository.ContextDataTypeRepository;
 import com.norpactech.pf.loader.repository.ContextPropertyTypeRepository;
 import com.norpactech.pf.loader.repository.ContextRepository;
+import com.norpactech.pf.loader.repository.DataIndexPropertyRepository;
 import com.norpactech.pf.loader.repository.DataIndexRepository;
 import com.norpactech.pf.loader.repository.DataObjectRepository;
 import com.norpactech.pf.loader.repository.GenericDataTypeAttributeRepository;
@@ -46,6 +47,7 @@ public abstract class BaseLoader {
   protected static final GenericDataTypeRepository genericDataTypeRepository = new GenericDataTypeRepository();
   protected static final GenericPropertyTypeRepositoryEx genericPropertyTypeRepository = new GenericPropertyTypeRepositoryEx();
   protected static final DataIndexRepository dataIndexRepository = new DataIndexRepository();
+  protected static final DataIndexPropertyRepository dataIndexPropertyRepository = new DataIndexPropertyRepository();
   protected static final PluginRepository pluginRepository = new PluginRepository();
   protected static final ProjectComponentPropertyRepository projectComponentPropertyRepository = new ProjectComponentPropertyRepository();
   protected static final ProjectComponentRepository projectComponentRepository = new ProjectComponentRepository();

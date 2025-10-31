@@ -11,9 +11,7 @@ public class LoadAll {
     logger.info("Beginning Load All from: {}", filePath);
 
     new LoadTenant(filePath, "Tenant.csv").load();
-    
     new LoadUser(filePath, "User.csv").load(); // includes TenantUser  **** Revisit ****
-    
     new LoadSchema(filePath, "Schema.csv").load();
     new LoadContext(filePath, "Context.csv").load();
     new LoadRefTableType(filePath, "RefTableType.csv").load();
@@ -27,9 +25,8 @@ public class LoadAll {
     new LoadDataObject(filePath, "DataObject.csv").load();
     new LoadProperty(filePath, "Property.csv").load();
     new LoadDataIndex(filePath, "DataIndex.csv").load();
-// Data Index Property
-    
-// Plugin
+    new LoadDataIndexProperty(filePath, "DataIndexProperty.csv").load();
+    new LoadPlugin(filePath, "Plugin.csv").load();
     new LoadProject(filePath, "Project.csv").load();
     new LoadProjectComponent(filePath, "ProjectComponent.csv").load();
     new LoadProjectComponentProperty(filePath, "ProjectComponentProperty.csv").load();
