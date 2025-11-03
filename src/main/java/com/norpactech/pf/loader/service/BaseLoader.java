@@ -11,6 +11,9 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.StringUtils;
 
+import com.norpactech.nc.config.load.Globals;
+import com.norpactech.nc.config.tenant.TenantContext;
+import com.norpactech.pf.loader.model.Tenant;
 import com.norpactech.pf.loader.repository.CardinalityRepository;
 import com.norpactech.pf.loader.repository.ContextDataTypeRepository;
 import com.norpactech.pf.loader.repository.ContextPropertyTypeRepository;
@@ -74,6 +77,16 @@ public abstract class BaseLoader {
     
     if (!Files.exists(getFullPath())) {
       this.fileExists = false;
+      // The Tenant Context is required if Tenant.csv is not processed
+      if (fileName.toUpperCase().equals("TENANT.CSV")) {
+        Tenant tenant = tenantRepositoryEx.findOne(Globals.PARETO_API_TENANT_NAME);
+        if (tenant != null) {
+          TenantContext.setIdTenant(tenant.getId().toString());
+        }
+        else {
+          throw new Exception("Tenant Context could not be set - Tenant.csv file is missing and default tenant not found: " + Globals.PARETO_API_TENANT_NAME);
+        }
+      }
       logger.info("File does not exist: " + getFullPath() + " - Skipping load");
       return;
     }
