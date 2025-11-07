@@ -81,7 +81,7 @@ public abstract class BaseLoader {
       if (fileName.toUpperCase().equals("TENANT.CSV")) {
         Tenant tenant = tenantRepositoryEx.findOne(Globals.PARETO_API_TENANT_NAME);
         if (tenant != null) {
-          TenantContext.setIdTenant(tenant.getId().toString());
+          TenantContext.setId(tenant.getId());
         }
         else {
           throw new Exception("Tenant Context could not be set - Tenant.csv file is missing and default tenant not found: " + Globals.PARETO_API_TENANT_NAME);

@@ -51,6 +51,7 @@ public class LoadProperty extends BaseLoader {
         var description = TextUtils.toString(csvRecord.get("description"));
         var references = TextUtils.toString(csvRecord.get("references"));
         var cardinality = TextUtils.toString(csvRecord.get("cardinality"));
+        
         Boolean isUpdatable = true;
         if (StringUtils.isNotEmpty(csvRecord.get("is_updatable"))) {
           isUpdatable = TextUtils.toBoolean(csvRecord.get("is_updatable"));
@@ -62,7 +63,11 @@ public class LoadProperty extends BaseLoader {
         var hasReferentialAction = TextUtils.toBoolean(csvRecord.get("has_referential_action"));
         var length = TextUtils.toInteger(csvRecord.get("length"));
         var scale = TextUtils.toInteger(csvRecord.get("scale"));
-        var isNullable = TextUtils.toBoolean(csvRecord.get("is_nullable"));
+        
+        Boolean isNullable = true;
+        if (StringUtils.isNotEmpty(csvRecord.get("is_nullable"))) {
+          isNullable = TextUtils.toBoolean(csvRecord.get("is_nullable"));
+        }
         var defaultValue = TextUtils.toString(csvRecord.get("default_value"));
         var validationName = TextUtils.toString(csvRecord.get("validation"));
         
@@ -119,7 +124,7 @@ public class LoadProperty extends BaseLoader {
             request.setFkViewable(fkViewable);
             request.setLength(length);
             request.setScale(scale);
-            request.setIsNullable(isNullable == null ? true : false);            
+            request.setIsNullable(isNullable);            
             request.setDefaultValue(defaultValue);
             request.setCreatedBy(Constant.THIS_PROCESS_CREATED);
             var response = propertyRepository.save(request);    
@@ -146,7 +151,7 @@ public class LoadProperty extends BaseLoader {
             request.setFkViewable(fkViewable);
             request.setLength(length);
             request.setScale(scale);
-            request.setIsNullable(isNullable == null ? true : false);            
+            request.setIsNullable(isNullable);            
             request.setDefaultValue(defaultValue);
             request.setUpdatedAt(property.getUpdatedAt());
             request.setUpdatedBy(Constant.THIS_PROCESS_UPDATED);

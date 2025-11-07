@@ -81,7 +81,7 @@ public class LoadGenericPropertyType extends BaseLoader {
             var response = genericPropertyTypeRepository.save(request);  
             
             if (response.getData() == null) {
-              logger.error("Generic Property Type Attribute failed for: {}, {}", name, response.getMeta().getDetail());
+              logger.error("Generic Property Type failed for: {}, {}", name, response.getMeta().getDetail());
               errors++;
             }
             else {
@@ -103,7 +103,7 @@ public class LoadGenericPropertyType extends BaseLoader {
             var response = genericPropertyTypeRepository.save(request);
             
             if (response.getData() == null) {
-              logger.error("Generic Property Type Attribute failed for: {}, {}", name, response.getMeta().getDetail());
+              logger.error("Generic Property Type failed for: {}, {}", name, response.getMeta().getDetail());
               errors++;
             }
             else {

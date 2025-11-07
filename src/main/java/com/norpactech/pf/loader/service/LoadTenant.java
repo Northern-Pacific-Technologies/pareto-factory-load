@@ -47,7 +47,7 @@ public class LoadTenant extends BaseLoader {
         Tenant tenant = tenantRepositoryEx.findOne(tenantName);
         if (tenant != null) {
           // Set the Tenant Context for subsequent operations
-          TenantContext.setIdTenant(tenant.getId().toString());
+          TenantContext.setId(tenant.getId());
           logger.info("Tenant Context Set: {}", tenant.getId().toString());
         }
 
@@ -59,7 +59,7 @@ public class LoadTenant extends BaseLoader {
             request.setCopyright(copyright);
             request.setTimeZone(timeZone);
             request.setCreatedBy(Constant.THIS_PROCESS_CREATED);
-            var response = tenantRepository.save(request);
+            var response = tenantRepositoryEx.save(request);
             
             if (response.getData() == null) {
               logger.error(this.getClass().getName() + " failed for: " + tenantName + " " + response.getMeta().getDetail());
@@ -69,7 +69,7 @@ public class LoadTenant extends BaseLoader {
               // Set the Tenant Context for subsequent operations
               tenant = tenantRepositoryEx.findOne(tenantName);
               if (tenant != null) {
-                TenantContext.setIdTenant(tenant.getId().toString());
+                TenantContext.setId(tenant.getId());
                 logger.info("Tenant Context Set: {}", tenant.getId().toString());
                 processedTenant = true;
                 persisted++;
